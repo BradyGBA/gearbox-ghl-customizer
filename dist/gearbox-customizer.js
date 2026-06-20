@@ -2075,7 +2075,9 @@
         allowed = !!(locId && Array.isArray(window.locationLocking.allowedLocations) && window.locationLocking.allowedLocations.includes(locId));
       }
       if (allowed) mode = 'learn';
-    } else if (locId) {
+    } else {
+      // Agency view should always show the Platform Customizer button.
+      // Some agency pages, such as /sub-accounts/accounts, do not expose a location id.
       mode = 'tours';
     }
 
@@ -2086,14 +2088,22 @@
     if (gear) gear.style.display = mode === 'learn' ? 'flex' : 'none';
     if (learn) learn.style.display = 'none';
 
-    const target = document.querySelector('.sidebar-v2-location header .container-fluid, .sidebar-v2-agency header .container-fluid');
+    const target = document.querySelector('.sidebar-v2-location header .container-fluid, .sidebar-v2-agency header .container-fluid, header .container-fluid, header');
     let wrapper = document.getElementById(PC.ids.headerWrapper);
     if (!wrapper && target) {
       target.style.position = 'relative';
       wrapper = document.createElement('div');
       wrapper.id = PC.ids.headerWrapper;
-      wrapper.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;display:flex;align-items:center;gap:10px;';
+      wrapper.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483645;display:flex;align-items:center;gap:10px;';
       target.appendChild(wrapper);
+    }
+
+    // Fallback for white-label agency pages where HighLevel does not expose a normal header container.
+    if (!wrapper && mode === 'tours') {
+      wrapper = document.createElement('div');
+      wrapper.id = PC.ids.headerWrapper;
+      wrapper.style.cssText = 'position:fixed;top:58px;right:170px;z-index:2147483645;display:flex;align-items:center;gap:10px;';
+      document.body.appendChild(wrapper);
     }
 
     if (wrapper) {
