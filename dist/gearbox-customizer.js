@@ -2063,6 +2063,61 @@
     document.body.append(overlay, dd);
   }
 
+
+  function ensureForcedAgencyPlatformButton() {
+    const isLocationView = window.location.pathname.includes('/location/');
+    let forcedBtn = document.getElementById('gbx-force-platform-customizer-button');
+
+    if (isLocationView) {
+      if (forcedBtn) forcedBtn.style.display = 'none';
+      return;
+    }
+
+    if (!forcedBtn) {
+      forcedBtn = document.createElement('button');
+      forcedBtn.id = 'gbx-force-platform-customizer-button';
+      forcedBtn.type = 'button';
+      forcedBtn.textContent = 'Platform Customizer';
+      forcedBtn.style.cssText = [
+        'position:fixed',
+        'top:58px',
+        'right:175px',
+        'z-index:2147483647',
+        'background:#007aff',
+        'color:#ffffff',
+        'border:none',
+        'border-radius:8px',
+        'padding:9px 14px',
+        'font-family:Inter,Arial,sans-serif',
+        'font-size:14px',
+        'font-weight:600',
+        'line-height:1',
+        'cursor:pointer',
+        'box-shadow:0 4px 14px rgba(0,0,0,.22)'
+      ].join(';');
+      forcedBtn.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        createPlatformCustomizerDropdown(forcedBtn);
+      });
+      document.body.appendChild(forcedBtn);
+    }
+
+    forcedBtn.style.display = 'block';
+  }
+
+  window.GBXPlatformCustomizer = {
+    openMenu: function() {
+      ensureForcedAgencyPlatformButton();
+      const btn = document.getElementById('gbx-force-platform-customizer-button') || document.getElementById('platform-customizer-button');
+      if (btn) createPlatformCustomizerDropdown(btn);
+    },
+    openAnimatedTours: createAnimatedToursSidebar,
+    openTasks: createTasksSidebar,
+    openSidebarCustomizer: createSidebarCustomizerPopup,
+    openLocationAccess: createLocationAccessSidebar
+  };
+
   async function updateDynamicButton() {
     const currentPath = window.location.pathname;
     const locId = getContextLocationId();
@@ -2080,6 +2135,8 @@
       // Some agency pages, such as /sub-accounts/accounts, do not expose a location id.
       mode = 'tours';
     }
+
+    ensureForcedAgencyPlatformButton();
 
     const tasksBtn = document.getElementById(PC.ids.tasksButton);
     const gear = document.getElementById(PC.ids.learnGear);
@@ -2200,6 +2257,7 @@
     injectFonts();
     injectStyles();
     createAuxButtons();
+    ensureForcedAgencyPlatformButton();
 
     await loadConfigFromBackend();
     await runSetup(0);
